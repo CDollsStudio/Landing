@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CyberDolls Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bagel+Fat+One&family=Alfa+Slab+One&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1a2271;
+  --navy-deep:#0f1550;
+  --cream:#eee6d3;
+  --glow:#7f8fff;
+  --glass:rgba(140,160,255,0.35);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Manrope',sans-serif;
+  color:var(--navy-deep);
+  background:#dcd9d2;
+  overflow-x:hidden;
+}
+
+/* ── procedural newsprint canvas ── */
+#news-bg{
+  position:fixed; inset:0; z-index:-1;
+  width:100%; height:100%;
+  filter: contrast(1.05);
+}
+
+/* ── pixel outline helper ── */
+.pixel{
+  font-family:'Press Start 2P', monospace;
+  color:#fff;
+  -webkit-text-stroke: 2px var(--navy);
+  text-shadow:
+    2px 0 var(--navy), -2px 0 var(--navy), 0 2px var(--navy), 0 -2px var(--navy),
+    0 0 14px var(--glow), 0 0 26px rgba(127,143,255,0.6);
+  letter-spacing:0.02em;
+}
+
+/* ── hero ── */
+.hero{
+  position:relative;
+  min-height:100svh;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+  padding: 100px 4vw 60px;
+}
+
+/* nav list */
+.hero-nav{
+  position:relative; z-index:5;
+  display:flex; flex-direction:column;
+  gap: clamp(18px,3vw,34px);
+  max-width: 40%;
+}
+.hero-nav a{
+  font-size: clamp(14px,2.1vw,26px);
+  line-height:1.3;
+  text-decoration:none;
+  display:inline-block;
+  transform: skewY(-3deg);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1), filter .3s ease;
+  cursor:pointer;
+}
+.hero-nav a:nth-child(odd){ transform: skewY(-3deg) rotate(-1.5deg); }
+.hero-nav a:nth-child(even){ transform: skewY(-3deg) rotate(1.2deg); margin-left: clamp(6px,1.5vw,20px); }
+.hero-nav a:hover{
+  transform: skewY(-3deg) scale(1.08) translateY(-3px);
+  filter: brightness(1.15);
+}
+
+/* center wordmark cluster */
+.mark-wrap{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  z-index:4;
+  width:min(56vw,640px);
+  display:flex; flex-direction:column; align-items:center;
+}
+.orbit-svg{ position:absolute; inset:-18% -10%; width:130%; height:130%; z-index:1; pointer-events:none; }
+.orbit-path{
+  fill:none; stroke:var(--navy); stroke-width:3;
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: draw 2.2s ease forwards .3s;
+}
+@keyframes draw{ to{ stroke-dashoffset:0; } }
+
+.sparkle{
+  position:absolute; width:34px; height:34px;
+  animation: sparkleSpin 6s linear infinite, sparklePulse 1.8s ease-in-out infinite;
+  transform-origin:center;
+  z-index:2;
+}
+@keyframes sparkleSpin{ to{ transform: rotate(360deg); } }
+@keyframes sparklePulse{ 0%,100%{ opacity:.7; } 50%{ opacity:1; } }
+
+.bubble{
+  position:absolute; border-radius:50%;
+  overflow:hidden;
+  animation: bob 3.4s cubic-bezier(.68,-0.4,.27,1.4) infinite;
+  z-index:2;
+}
+.bubble img{
+  width:100%; height:100%; object-fit:cover; display:block; border-radius:50%;
+}
+.bubble .bubble-fallback{
+  width:100%; height:100%; border-radius:50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.9), var(--glass) 55%, rgba(120,140,255,0.12) 100%);
+  border:1px solid rgba(255,255,255,0.6);
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.5);
+  display:none;
+}
+@keyframes bob{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-16px); } }
+
+.wordmark{
+  position:relative; z-index:3;
+  font-family:'Bagel Fat One', 'Alfa Slab One', serif;
+  font-size: clamp(48px, 8.6vw, 112px);
+  line-height:0.92;
+  color:var(--cream);
+  -webkit-text-stroke: 2px var(--navy);
+  text-shadow: 5px 6px 0 var(--navy), 5px 6px 20px rgba(26,34,113,0.4);
+  text-align:center;
+  letter-spacing:-0.01em;
+  animation: bobSlow 5s ease-in-out infinite;
+}
+@keyframes bobSlow{ 0%,100%{ transform: translateY(0) rotate(0deg); } 50%{ transform: translateY(-8px) rotate(-0.6deg); } }
+
+.subword{
+  position:relative; z-index:3;
+  font-family:'Bagel Fat One', 'Alfa Slab One', serif;
+  font-size: clamp(16px, 2.6vw, 30px);
+  letter-spacing: 0.5em;
+  color: var(--navy);
+  margin-top: 8px;
+  margin-left: 0.5em;
+}
+
+/* photo */
+.photo-slot{
+  position:absolute; right:-4vw; bottom:0; top:0;
+  z-index:3;
+  width: min(46vw, 620px);
+  display:flex; align-items:flex-end; justify-content:flex-end;
+  animation: bobPhoto 4.5s ease-in-out infinite;
+}
+@keyframes bobPhoto{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-10px); } }
+.photo-slot img{
+  width:100%; height:auto; max-height:92vh; object-fit:cover; object-position:top center;
+  display:block;
+}
+.photo-placeholder{
+  width:100%; height:78vh; border-radius:40% 60% 55% 45%/50% 45% 55% 50%;
+  background: radial-gradient(circle at 40% 25%, #efe8db, #cfc6b3 55%, #b8ae9c 100%);
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px;
+  border:3px dashed rgba(26,34,113,0.35);
+}
+.photo-placeholder span{
+  font-family:'Press Start 2P', monospace; font-size:10px; letter-spacing:.08em;
+  color: var(--navy); text-align:center; padding:0 30px;
+}
+
+.pixel-cursor{
+  position:absolute; z-index:6;
+  width: clamp(60px,9vw,110px);
+  filter: drop-shadow(3px 4px 0 rgba(0,0,0,0.25));
+  animation: cursorBob 2.2s cubic-bezier(.68,-0.4,.27,1.4) infinite;
+}
+@keyframes cursorBob{ 0%,100%{ transform: translate(0,0) rotate(0deg); } 50%{ transform: translate(-6px,-10px) rotate(-4deg); } }
+
+@media(max-width:860px){
+  .hero{ flex-direction:column; padding-top:120px; }
+  .hero-nav{ max-width:100%; align-items:flex-start; }
+  .mark-wrap{ position:relative; left:auto; top:auto; transform:none; width:100%; margin:40px 0; }
+  .photo-slot{ position:relative; right:auto; width:80%; margin:0 auto; top:auto; }
+  .photo-placeholder{ height:60vh; }
+}
+
+/* ── content sections ── */
+section.panel{
+  position:relative; z-index:2;
+  max-width:900px; margin:0 auto;
+  padding: 90px 6vw;
+}
+.panel-card{
+  background: rgba(238,230,211,0.88);
+  border:3px solid var(--navy);
+  border-radius:22px;
+  padding: 44px clamp(24px,5vw,56px);
+  box-shadow: 8px 10px 0 rgba(26,34,113,0.25);
+  opacity:0; transform: translateY(30px) scale(0.97);
+  transition: opacity .6s ease, transform .6s cubic-bezier(.34,1.56,.64,1);
+}
+.panel-card.in{ opacity:1; transform:translateY(0) scale(1); }
+
+.kicker{
+  font-family:'Press Start 2P', monospace; font-size:10.5px; letter-spacing:.1em;
+  color:var(--navy); margin-bottom:14px; display:block;
+}
+h2.panel-title{
+  font-family:'Bagel Fat One', 'Alfa Slab One', serif; font-size: clamp(24px,4.2vw,40px);
+  color: var(--navy); margin-bottom:18px; line-height:1.1;
+}
+.panel-card p{ font-size:15.5px; line-height:1.7; color:#2a2f5c; }
+.panel-card p+p{ margin-top:12px; }
+
+.chip-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.chip{
+  font-family:'Press Start 2P', monospace; font-size:9px;
+  background:#fff; border:2px solid var(--navy); border-radius:999px;
+  padding:8px 14px; color:var(--navy);
+}
+
+.service-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px; }
+@media(max-width:560px){ .service-grid{ grid-template-columns:1fr; } }
+.service-tile{
+  background:#fff; border:2.5px solid var(--navy); border-radius:16px; padding:18px 20px;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.service-tile:hover{ transform: translateY(-6px) rotate(-1deg); }
+.service-tile h3{ font-family:'Bagel Fat One','Alfa Slab One',serif; font-size:15px; color:var(--navy); margin-bottom:6px; }
+.service-tile p{ font-size:13px; color:#3a3f6c; }
+
+.btn3d{
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:'Press Start 2P', monospace; font-size:11px; letter-spacing:.05em;
+  color:#fff; background:var(--navy); border:none;
+  padding:16px 26px; border-radius:12px; text-decoration:none;
+  box-shadow: 5px 6px 0 rgba(15,21,80,0.55);
+  transition: transform .18s ease, box-shadow .18s ease;
+  margin-top:20px;
+}
+.btn3d:hover{ transform: translate(-2px,-2px); box-shadow: 7px 8px 0 rgba(15,21,80,0.55); }
+.btn3d:active{ transform: translate(2px,3px); box-shadow: 2px 3px 0 rgba(15,21,80,0.55); }
+
+.newsletter-input-row{ display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+.newsletter-input-row input{
+  flex:1; min-width:200px; padding:14px 16px; border:2.5px solid var(--navy); border-radius:10px;
+  font-family:'Manrope',sans-serif; font-size:14px; background:#fff;
+}
+
+footer{
+  position:relative; z-index:2; text-align:center; padding:50px 20px 70px;
+  font-family:'Press Start 2P', monospace; font-size:10px; letter-spacing:.1em; color:var(--navy);
+}
+</style>
+</head>
+<body>
+
+<canvas id="news-bg"></canvas>
+
+<div class="hero">
+  <nav class="hero-nav">
+    <a href="#about" class="pixel">ABOUT ME</a>
+    <a href="#mission" class="pixel">CDS MISSION<br>STATEMENT</a>
+    <a href="#services" class="pixel">SERVICES</a>
+    <a href="#inquiries" class="pixel">INQUIRIES</a>
+    <a href="#newsletter" class="pixel">NEWSLETTER</a>
+  </nav>
+
+  <div class="mark-wrap">
+    <svg class="orbit-svg" viewBox="0 0 600 400">
+      <path class="orbit-path" d="M 60 260 C 140 60, 420 40, 540 160 C 600 220, 560 260, 520 240" />
+    </svg>
+    <div class="sparkle" style="top:6%; left:32%;">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="#1a2271"/></svg>
+    </div>
+    <div class="bubble" style="width:52px;height:52px; left:2%; top:44%; animation-delay:.2s;">
+      <img src="bubble1.jpg" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <div class="bubble-fallback"></div>
+    </div>
+    <div class="bubble" style="width:30px;height:30px; left:14%; top:30%; animation-delay:1s;">
+      <img src="bubble2.jpg" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <div class="bubble-fallback"></div>
+    </div>
+    <div class="bubble" style="width:36px;height:36px; right:8%; bottom:14%; animation-delay:.6s;">
+      <img src="bubble3.jpg" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <div class="bubble-fallback"></div>
+    </div>
+    <div class="bubble" style="width:22px;height:22px; right:18%; bottom:2%; animation-delay:1.4s;">
+      <img src="bubble4.jpg" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <div class="bubble-fallback"></div>
+    </div>
+
+    <div class="wordmark">CYBERDOLLS</div>
+    <div class="subword">STUDIO</div>
+  </div>
+
+  <div class="photo-slot">
+    <img src="photo.jpg" alt="Ali" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="photo-placeholder" style="display:none;">
+      <span>◈ DROP "photo.jpg" IN<br>THIS FOLDER TO SWAP ME IN ◈</span>
+    </div>
+    <svg class="pixel-cursor" style="bottom:22%; left:8%;" viewBox="0 0 32 32" fill="none">
+      <path d="M4 2 L4 26 L10 20 L14 29 L18 27 L14 18 L22 18 Z" fill="#ffffff" stroke="#1a2271" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</div>
+
+<section id="about" class="panel">
+  <div class="panel-card">
+    <span class="kicker">// ABOUT ME</span>
+    <h2 class="panel-title">Hey diva, I'm Ali.</h2>
+    <p>I've been doing graphic design for a little over 6 years — started as a hobby, now it's the whole studio. I'm currently in school for music, so brand work and melody live in the same brain around here.</p>
+    <p>Originally from Nevada, based in Texas now. When I'm not designing you'll catch me traveling or on the volleyball court. Can't wait to meet you and build something that actually looks like <i>you</i>.</p>
+    <div class="chip-row">
+      <span class="chip">6+ YRS EXP</span>
+      <span class="chip">BASED IN TX</span>
+      <span class="chip">MUSIC SCHOOL</span>
+      <span class="chip">VOLLEYBALL</span>
+    </div>
+  </div>
+</section>
+
+<section id="mission" class="panel">
+  <div class="panel-card">
+    <span class="kicker">// CDS MISSION STATEMENT</span>
+    <h2 class="panel-title">Nostalgia, coded for now.</h2>
+    <p>CyberDolls Studio is an authentically Y2K-inspired creative studio that combines nostalgia, internet culture, and modern branding. We help creators, influencers, musicians, small businesses, and entrepreneurs develop eye-catching visual identities that stand out online.</p>
+  </div>
+</section>
+
+<section id="services" class="panel">
+  <div class="panel-card">
+    <span class="kicker">// SERVICES</span>
+    <h2 class="panel-title">What I build</h2>
+    <div class="service-grid">
+      <div class="service-tile"><h3>Business Cards</h3><p>Cards people actually want to hold onto.</p></div>
+      <div class="service-tile"><h3>Event / Personal Posters</h3><p>Flyers built to stop the scroll.</p></div>
+      <div class="service-tile"><h3>Websites</h3><p>Full builds with a point of view.</p></div>
+      <div class="service-tile"><h3>Social Media Packages</h3><p>Grids &amp; templates that match your brand.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="inquiries" class="panel">
+  <div class="panel-card">
+    <span class="kicker">// INQUIRIES</span>
+    <h2 class="panel-title">Let's build your identity.</h2>
+    <p>Slide into the inbox with your project idea, budget, and vibe — replies usually land within a day or two.</p>
+    <a href="mailto:hello@cyberdollsstudio.com" class="btn3d">✉ EMAIL THE STUDIO</a>
+  </div>
+</section>
+
+<section id="newsletter" class="panel">
+  <div class="panel-card">
+    <span class="kicker">// NEWSLETTER</span>
+    <h2 class="panel-title">Stay in the loop.</h2>
+    <p>New drops, behind-the-scenes, and the occasional Y2K rabbit hole. No spam, just diva updates.</p>
+    <div class="newsletter-input-row">
+      <input type="email" placeholder="your@email.com">
+      <a href="#" class="btn3d" style="margin-top:0;">SUBSCRIBE</a>
+    </div>
+  </div>
+</section>
+
+<footer>© CYBERDOLLS STUDIO — EST. TEXAS</footer>
+
+<script>
+/* ── procedural newsprint collage canvas ── */
+(function(){
+  const canvas = document.getElementById('news-bg');
+  const ctx = canvas.getContext('2d');
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789•■□¶§";
+
+  function draw(){
+    const w = window.innerWidth, h = Math.max(window.innerHeight, document.body.scrollHeight);
+    canvas.width = w; canvas.height = h;
+    ctx.fillStyle = "#e2ded5";
+    ctx.fillRect(0,0,w,h);
+
+    const clippings = Math.floor((w*h) / 90000) + 18;
+    for(let i=0;i<clippings;i++){
+      const cw = 140 + Math.random()*260;
+      const ch = 90 + Math.random()*180;
+      const cx = Math.random()*w;
+      const cy = Math.random()*h;
+      const rot = (Math.random()-0.5) * 0.5;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rot);
+      ctx.globalAlpha = 0.55 + Math.random()*0.3;
+      ctx.fillStyle = Math.random() > 0.5 ? "#f4f2ec" : "#d6d2c6";
+      ctx.fillRect(-cw/2, -ch/2, cw, ch);
+
+      ctx.fillStyle = "rgba(20,20,20,0.55)";
+      ctx.font = (7+Math.random()*3)+"px monospace";
+      const lineH = 9;
+      const lines = Math.floor(ch/lineH);
+      for(let l=0;l<lines;l++){
+        let str = "";
+        const lineLen = 18 + Math.floor(Math.random()*10);
+        for(let c=0;c<lineLen;c++) str += chars[Math.floor(Math.random()*chars.length)];
+        ctx.fillText(str, -cw/2 + 6, -ch/2 + 12 + l*lineH);
+      }
+      ctx.restore();
+    }
+
+    // fine grain
+    const imgData = ctx.getImageData(0,0,w,h);
+    const d = imgData.data;
+    for(let p=0; p<d.length; p+=4){
+      const n = (Math.random()-0.5) * 18;
+      d[p] += n; d[p+1] += n; d[p+2] += n;
+    }
+    ctx.putImageData(imgData, 0, 0);
+  }
+  draw();
+  let resizeTimer;
+  window.addEventListener('resize', ()=>{ clearTimeout(resizeTimer); resizeTimer=setTimeout(draw, 250); });
+})();
+
+/* ── scroll reveal for panels ── */
+const cards = document.querySelectorAll('.panel-card');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+}, {threshold:0.2});
+cards.forEach(c=>io.observe(c));
+</script>
+
+</body>
+</html>
