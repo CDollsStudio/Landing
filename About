@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CyberDolls Studio — About Me</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bagel+Fat+One&family=Alfa+Slab+One&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --navy:#1a2271;
+  --navy-deep:#0f1550;
+  --cream:#eee6d3;
+  --glow:#7f8fff;
+  --glass:rgba(140,160,255,0.35);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Manrope',sans-serif;
+  color:var(--navy-deep);
+  background:#dcd9d2;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+#news-bg{
+  position:fixed; inset:0; z-index:-1;
+  width:100%; height:100%;
+  background-color:#dcd9d2;
+  background-image:
+    radial-gradient(rgba(26,34,113,0.10) 1px, transparent 1px),
+    radial-gradient(rgba(26,34,113,0.06) 1px, transparent 1px);
+  background-size: 6px 6px, 6px 6px;
+  background-position: 0 0, 3px 3px;
+}
+#news-bg::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(220,217,210,0) 30%, rgba(220,217,210,0) 70%, rgba(255,255,255,0.4));
+}
+.pixel{
+  font-family:'Press Start 2P', monospace;
+  color:#fff;
+  -webkit-text-stroke: 2px var(--navy);
+  text-shadow:
+    2px 0 var(--navy), -2px 0 var(--navy), 0 2px var(--navy), 0 -2px var(--navy),
+    0 0 14px var(--glow), 0 0 26px rgba(127,143,255,0.6);
+  letter-spacing:0.02em;
+}
+.site-nav{
+  position:sticky; top:0; left:0; right:0; z-index:20;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  gap: clamp(10px,2vw,22px);
+  padding: 16px 4vw;
+  background: rgba(238,230,211,0.9);
+  backdrop-filter: blur(6px);
+  border-bottom: 2px solid rgba(26,34,113,0.25);
+}
+.site-nav .brand{
+  font-family:'Bagel Fat One','Alfa Slab One',serif;
+  font-size: 18px; color: var(--navy); text-decoration:none;
+  -webkit-text-stroke: 0.5px var(--navy);
+}
+.site-nav .links{ display:flex; flex-wrap:wrap; gap: clamp(8px,1.6vw,18px); }
+.site-nav a.navlink{
+  font-family:'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--navy);
+  text-decoration:none;
+  padding:8px 10px;
+  border-radius:8px;
+  transition: background .2s ease, transform .2s ease;
+  white-space:nowrap;
+}
+.site-nav a.navlink:hover{ background: rgba(26,34,113,0.1); transform: translateY(-2px); }
+.site-nav a.navlink.active{ background: var(--navy); color:#fff; }
+
+.subhero{
+  position:relative; z-index:2;
+  max-width:900px; margin:0 auto;
+  padding: 70px 6vw 10px;
+  text-align:center;
+}
+.subhero .kicker{
+  font-family:'Press Start 2P', monospace; font-size:10px; letter-spacing:.12em;
+  color:var(--navy); display:block; margin-bottom:16px;
+}
+.subhero h1{
+  font-family:'Bagel Fat One', 'Alfa Slab One', serif;
+  font-size: clamp(34px, 7vw, 66px);
+  line-height:0.95;
+  color:var(--cream);
+  -webkit-text-stroke: 2px var(--navy);
+  text-shadow: 5px 6px 0 var(--navy), 5px 6px 20px rgba(26,34,113,0.35);
+  animation: bobSlow 5s ease-in-out infinite;
+}
+@keyframes bobSlow{ 0%,100%{ transform: translateY(0) rotate(0deg); } 50%{ transform: translateY(-6px) rotate(-0.5deg); } }
+
+section.panel{
+  position:relative; z-index:2;
+  max-width:900px; margin:0 auto;
+  padding: 40px 6vw 90px;
+}
+.panel-card{
+  background: rgba(238,230,211,0.88);
+  border:3px solid var(--navy);
+  border-radius:22px;
+  padding: 44px clamp(24px,5vw,56px);
+  box-shadow: 8px 10px 0 rgba(26,34,113,0.25);
+  opacity:0; transform: translateY(30px) scale(0.97);
+  transition: opacity .6s ease, transform .6s cubic-bezier(.34,1.56,.64,1);
+}
+.panel-card.in{ opacity:1; transform:translateY(0) scale(1); }
+.panel-card + .panel-card{ margin-top: 26px; }
+
+.kicker{
+  font-family:'Press Start 2P', monospace; font-size:10.5px; letter-spacing:.1em;
+  color:var(--navy); margin-bottom:14px; display:block;
+}
+h2.panel-title{
+  font-family:'Bagel Fat One', 'Alfa Slab One', serif; font-size: clamp(22px,4vw,36px);
+  color: var(--navy); margin-bottom:18px; line-height:1.1;
+}
+.panel-card p{ font-size:15.5px; line-height:1.7; color:#2a2f5c; }
+.panel-card p+p{ margin-top:12px; }
+.panel-card ul{ margin-top:14px; padding-left:22px; }
+.panel-card li{ font-size:15px; line-height:1.8; color:#2a2f5c; }
+
+.chip-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.chip{
+  font-family:'Press Start 2P', monospace; font-size:9px;
+  background:#fff; border:2px solid var(--navy); border-radius:999px;
+  padding:8px 14px; color:var(--navy);
+}
+
+.service-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px; }
+@media(max-width:560px){ .service-grid{ grid-template-columns:1fr; } }
+.service-tile{
+  background:#fff; border:2.5px solid var(--navy); border-radius:16px; padding:20px 22px;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.service-tile:hover{ transform: translateY(-6px) rotate(-1deg); }
+.service-tile h3{ font-family:'Bagel Fat One','Alfa Slab One',serif; font-size:16px; color:var(--navy); margin-bottom:8px; }
+.service-tile p{ font-size:13.5px; color:#3a3f6c; line-height:1.6; }
+.service-tile .price{ font-family:'Press Start 2P', monospace; font-size:11px; color:var(--navy); margin-top:10px; display:inline-block; }
+
+.step-list{ display:flex; flex-direction:column; gap:18px; margin-top:8px; }
+.step{ display:flex; gap:16px; align-items:flex-start; }
+.step .num{
+  font-family:'Press Start 2P', monospace; font-size:13px; color:#fff;
+  background:var(--navy); border-radius:10px; padding:10px 12px; flex-shrink:0;
+}
+.step h3{ font-family:'Bagel Fat One','Alfa Slab One',serif; font-size:16px; color:var(--navy); margin-bottom:4px; }
+.step p{ font-size:14px; color:#3a3f6c; }
+
+.btn3d{
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:'Press Start 2P', monospace; font-size:11px; letter-spacing:.05em;
+  color:#fff; background:var(--navy); border:none; cursor:pointer;
+  padding:16px 26px; border-radius:12px; text-decoration:none;
+  box-shadow: 5px 6px 0 rgba(15,21,80,0.55);
+  transition: transform .18s ease, box-shadow .18s ease;
+  margin-top:20px;
+}
+.btn3d:hover{ transform: translate(-2px,-2px); box-shadow: 7px 8px 0 rgba(15,21,80,0.55); }
+.btn3d:active{ transform: translate(2px,3px); box-shadow: 2px 3px 0 rgba(15,21,80,0.55); }
+
+.form-grid{ display:flex; flex-direction:column; gap:14px; margin-top:22px; }
+.form-grid label{ font-family:'Press Start 2P', monospace; font-size:9px; color:var(--navy); margin-bottom:6px; display:block; }
+.form-grid input, .form-grid select, .form-grid textarea{
+  width:100%; padding:14px 16px; border:2.5px solid var(--navy); border-radius:10px;
+  font-family:'Manrope',sans-serif; font-size:14px; background:#fff; color:var(--navy-deep);
+}
+.form-grid textarea{ min-height:110px; resize:vertical; }
+
+.newsletter-input-row{ display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+.newsletter-input-row input{
+  flex:1; min-width:200px; padding:14px 16px; border:2.5px solid var(--navy); border-radius:10px;
+  font-family:'Manrope',sans-serif; font-size:14px; background:#fff;
+}
+
+.perk-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px; }
+@media(max-width:560px){ .perk-grid{ grid-template-columns:1fr; } }
+.perk{ background:#fff; border:2px solid var(--navy); border-radius:14px; padding:16px 18px; }
+.perk h3{ font-family:'Bagel Fat One','Alfa Slab One',serif; font-size:14px; color:var(--navy); margin-bottom:4px; }
+.perk p{ font-size:13px; color:#3a3f6c; }
+
+footer{
+  position:relative; z-index:2; text-align:center; padding:50px 20px 70px;
+  font-family:'Press Start 2P', monospace; font-size:10px; letter-spacing:.1em; color:var(--navy);
+}
+footer a{ color:var(--navy); }
+
+
+</style>
+</head>
+<body>
+
+<div id="news-bg"></div>
+
+<nav class="site-nav">
+  <a href="index.html" class="brand">CYBERDOLLS STUDIO</a>
+  <div class="links">
+    <a href="index.html" class="navlink">HOME</a>
+    <a href="about.html" class="navlink active">ABOUT</a>
+    <a href="mission.html" class="navlink">MISSION</a>
+    <a href="services.html" class="navlink">SERVICES</a>
+    <a href="inquiries.html" class="navlink">INQUIRIES</a>
+    <a href="newsletter.html" class="navlink">NEWSLETTER</a>
+  </div>
+</nav>
+
+<div class="subhero">
+  <span class="kicker">// ABOUT ME</span>
+  <h1>About Me</h1>
+</div>
+
+
+<section class="panel">
+  <div class="panel-card">
+    <span class="kicker">THE SHORT VERSION</span>
+    <h2 class="panel-title">Hey diva, I'm Ali.</h2>
+    <p>I've been doing graphic design for a little over 6 years — started as a hobby, now it's the whole studio. I'm currently in school for music, so brand work and melody live in the same brain around here.</p>
+    <p>Originally from Nevada, based in Texas now. When I'm not designing you'll catch me traveling or on the volleyball court. Can't wait to meet you and build something that actually looks like <i>you</i>.</p>
+    <div class="chip-row">
+      <span class="chip">6+ YRS EXP</span>
+      <span class="chip">BASED IN TX</span>
+      <span class="chip">MUSIC SCHOOL</span>
+      <span class="chip">VOLLEYBALL</span>
+    </div>
+  </div>
+
+  <div class="panel-card">
+    <span class="kicker">HOW I WORK</span>
+    <h2 class="panel-title">Design with a pulse.</h2>
+    <p>Every project starts with your reference board, not a template library. I want the slang, the colors, the songs on your playlist — the stuff that makes your brand sound like you when someone reads it out loud.</p>
+    <p>Turnarounds are quick, revisions are collaborative, and you'll always know what stage your project's in.</p>
+    <a href="inquiries.html" class="btn3d">✉ START A PROJECT</a>
+  </div>
+</section>
+
+
+<footer>© CYBERDOLLS STUDIO — EST. TEXAS · <a href="index.html">back to home</a></footer>
+
+<script>
+const cards = document.querySelectorAll('.panel-card');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+}, {threshold:0.15});
+cards.forEach(c=>io.observe(c));
+</script>
+
+</body>
+</html>
