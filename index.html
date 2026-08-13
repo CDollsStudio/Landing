@@ -14,25 +14,38 @@
   --glass:rgba(140,160,255,0.35);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
+html, body{ height:100%; overscroll-behavior:none; }
 html{scroll-behavior:smooth;}
 body{
   font-family:'Manrope',sans-serif;
   color:var(--navy-deep);
   background:#dcd9d2;
-  overflow-x:hidden;
+  overflow:hidden;
 }
 
-/* ── procedural newsprint canvas ── */
+/* ── procedural newsprint canvas — this is the fallback layer, always present ── */
 #news-bg{
+  position:fixed; inset:0; z-index:-2;
+  width:100%; height:100%;
+  background-color:#dcd9d2;
+  background-image:
+    radial-gradient(rgba(26,34,113,0.10) 1px, transparent 1px),
+    radial-gradient(rgba(26,34,113,0.06) 1px, transparent 1px);
+  background-size: 6px 6px, 6px 6px;
+  background-position: 0 0, 3px 3px;
+}
+#news-bg::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(220,217,210,0) 30%, rgba(220,217,210,0) 70%, rgba(255,255,255,0.4));
+}
+/* real newsprint wallpaper photo, layered on top of the fallback — if wpL.png / wpP.png
+   fail to load this just never appears and the dot pattern above shows through instead */
+#news-bg-photo{
   position:fixed; inset:0; z-index:-1;
   width:100%; height:100%;
-  background-image:url('wpL.jpg');
-  background-size:cover;
-  background-position:center;
+  object-fit:cover;
   filter: contrast(1.05);
-}
-@media (orientation: portrait){
-  #news-bg{ background-image:url('wpP.jpg'); }
 }
 
 /* ── pixel outline helper ── */
@@ -49,11 +62,12 @@ body{
 /* ── hero ── */
 .hero{
   position:relative;
+  height:100svh;
   min-height:100svh;
   display:flex;
   align-items:center;
   overflow:hidden;
-  padding: 100px 4vw 60px;
+  padding: 90px 4vw 40px;
 }
 
 /* nav list */
@@ -74,7 +88,7 @@ body{
 }
 .hero-nav a:nth-child(odd){ transform: skewY(-3deg) rotate(-1.5deg); }
 .hero-nav a:nth-child(even){ transform: skewY(-3deg) rotate(1.2deg); margin-left: clamp(6px,1.5vw,20px); }
-.hero-nav a:hover{
+.hero-nav a:hover, .hero-nav a.cursor-target{
   transform: skewY(-3deg) scale(1.08) translateY(-3px);
   filter: brightness(1.15);
 }
@@ -105,6 +119,7 @@ body{
 @keyframes sparkleSpin{ to{ transform: rotate(360deg); } }
 @keyframes sparklePulse{ 0%,100%{ opacity:.7; } 50%{ opacity:1; } }
 
+/* bubbles — real bubble.png photo, with a CSS glass-circle fallback if it fails to load */
 .bubble{
   position:absolute; border-radius:50%;
   overflow:hidden;
@@ -112,13 +127,13 @@ body{
   z-index:2;
 }
 .bubble img{
-  width:100%; height:100%; object-fit:cover; display:block; border-radius:50%;
+  width:100%; height:100%; object-fit:cover; display:block;
 }
 .bubble .bubble-fallback{
   width:100%; height:100%; border-radius:50%;
-  background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.9), var(--glass) 55%, rgba(120,140,255,0.12) 100%);
-  border:1px solid rgba(255,255,255,0.6);
-  box-shadow: inset 0 0 10px rgba(255,255,255,0.5);
+  background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95), var(--glass) 55%, rgba(120,140,255,0.15) 100%);
+  border:1px solid rgba(255,255,255,0.7);
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.6), 0 4px 10px rgba(26,34,113,0.15);
   display:none;
 }
 @keyframes bob{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-16px); } }
@@ -147,126 +162,94 @@ body{
   margin-left: 0.5em;
 }
 
-/* photo */
+/* photo — bleeds off the bottom-right corner, real photo with a fallback if missing */
 .photo-slot{
-  position:absolute; right:-4vw; bottom:0; top:0;
+  position:absolute; right:-3vw; bottom:-4vh;
   z-index:3;
-  width: min(46vw, 620px);
+  width: min(34vw, 430px);
   display:flex; align-items:flex-end; justify-content:flex-end;
   animation: bobPhoto 4.5s ease-in-out infinite;
+  pointer-events:none;
 }
 @keyframes bobPhoto{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-10px); } }
 .photo-slot img{
-  width:100%; height:auto; max-height:92vh; object-fit:cover; object-position:top center;
+  width:100%; height:auto; max-height:88vh; object-fit:contain; object-position:bottom right;
   display:block;
+  filter: drop-shadow(-6px 10px 18px rgba(15,21,80,0.35));
 }
 .photo-placeholder{
   width:100%; height:78vh; border-radius:40% 60% 55% 45%/50% 45% 55% 50%;
   background: radial-gradient(circle at 40% 25%, #efe8db, #cfc6b3 55%, #b8ae9c 100%);
-  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
   border:3px dashed rgba(26,34,113,0.35);
+  overflow:hidden;
 }
+.photo-placeholder svg{ width:56%; height:auto; }
 .photo-placeholder span{
-  font-family:'Press Start 2P', monospace; font-size:10px; letter-spacing:.08em;
+  font-family:'Press Start 2P', monospace; font-size:9px; letter-spacing:.08em;
   color: var(--navy); text-align:center; padding:0 30px;
 }
 
 .pixel-cursor{
-  position:absolute; z-index:6;
+  position:absolute; z-index:6; top:0; left:0;
   width: clamp(60px,9vw,110px);
   filter: drop-shadow(3px 4px 0 rgba(0,0,0,0.25));
+  will-change: top, left, opacity, transform;
+}
+.pixel-cursor .bob{
   animation: cursorBob 2.2s cubic-bezier(.68,-0.4,.27,1.4) infinite;
+  transform-origin: 12% 10%;
 }
 @keyframes cursorBob{ 0%,100%{ transform: translate(0,0) rotate(0deg); } 50%{ transform: translate(-6px,-10px) rotate(-4deg); } }
 
+.pixel-cursor.disintegrate .bob{
+  animation: none;
+}
+.pixel-cursor.disintegrate{
+  animation: disintegrate .7s ease forwards;
+}
+@keyframes disintegrate{
+  0%{ opacity:1; filter: drop-shadow(3px 4px 0 rgba(0,0,0,0.25)) blur(0px); }
+  40%{ opacity:.7; filter: drop-shadow(3px 4px 0 rgba(0,0,0,0.15)) blur(1.5px); }
+  100%{ opacity:0; transform: translateY(26px) scale(.5) rotate(20deg); filter: blur(6px); }
+}
+
+/* everything stays absolutely positioned at every size so the page never scrolls —
+   we just scale it down instead of letting it stack and grow taller than the screen */
 @media(max-width:860px){
-  .hero{ flex-direction:column; padding-top:120px; }
-  .hero-nav{ max-width:100%; align-items:flex-start; }
-  .mark-wrap{ position:relative; left:auto; top:auto; transform:none; width:100%; margin:40px 0; }
-  .photo-slot{ position:relative; right:auto; width:80%; margin:0 auto; top:auto; }
-  .photo-placeholder{ height:60vh; }
+  .hero-nav{ max-width:58%; gap:14px; }
+  .mark-wrap{ width:min(66vw,420px); }
+  .photo-slot{ width:44vw; right:-2vw; bottom:-2vh; }
+  .pixel-cursor{ display:none; }
+}
+@media(max-width:560px){
+  .hero-nav{ max-width:60%; gap:10px; }
+  .hero-nav a{ font-size: clamp(9px,3vw,13px); }
+  .wordmark{ font-size: clamp(28px,10vw,44px); }
+  .subword{ font-size: clamp(11px,3vw,16px); }
+  .photo-slot{ width:52vw; }
 }
 
-/* ── content sections ── */
-section.panel{
-  position:relative; z-index:2;
-  max-width:900px; margin:0 auto;
-  padding: 90px 6vw;
-}
-.panel-card{
-  background: rgba(238,230,211,0.88);
-  border:3px solid var(--navy);
-  border-radius:22px;
-  padding: 44px clamp(24px,5vw,56px);
-  box-shadow: 8px 10px 0 rgba(26,34,113,0.25);
-  opacity:0; transform: translateY(30px) scale(0.97);
-  transition: opacity .6s ease, transform .6s cubic-bezier(.34,1.56,.64,1);
-}
-.panel-card.in{ opacity:1; transform:translateY(0) scale(1); }
-
-.kicker{
-  font-family:'Press Start 2P', monospace; font-size:10.5px; letter-spacing:.1em;
-  color:var(--navy); margin-bottom:14px; display:block;
-}
-h2.panel-title{
-  font-family:'Bagel Fat One', 'Alfa Slab One', serif; font-size: clamp(24px,4.2vw,40px);
-  color: var(--navy); margin-bottom:18px; line-height:1.1;
-}
-.panel-card p{ font-size:15.5px; line-height:1.7; color:#2a2f5c; }
-.panel-card p+p{ margin-top:12px; }
-
-.chip-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
-.chip{
-  font-family:'Press Start 2P', monospace; font-size:9px;
-  background:#fff; border:2px solid var(--navy); border-radius:999px;
-  padding:8px 14px; color:var(--navy);
-}
-
-.service-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px; }
-@media(max-width:560px){ .service-grid{ grid-template-columns:1fr; } }
-.service-tile{
-  background:#fff; border:2.5px solid var(--navy); border-radius:16px; padding:18px 20px;
-  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
-}
-.service-tile:hover{ transform: translateY(-6px) rotate(-1deg); }
-.service-tile h3{ font-family:'Bagel Fat One','Alfa Slab One',serif; font-size:15px; color:var(--navy); margin-bottom:6px; }
-.service-tile p{ font-size:13px; color:#3a3f6c; }
-
-.btn3d{
-  display:inline-flex; align-items:center; gap:10px;
-  font-family:'Press Start 2P', monospace; font-size:11px; letter-spacing:.05em;
-  color:#fff; background:var(--navy); border:none;
-  padding:16px 26px; border-radius:12px; text-decoration:none;
-  box-shadow: 5px 6px 0 rgba(15,21,80,0.55);
-  transition: transform .18s ease, box-shadow .18s ease;
-  margin-top:20px;
-}
-.btn3d:hover{ transform: translate(-2px,-2px); box-shadow: 7px 8px 0 rgba(15,21,80,0.55); }
-.btn3d:active{ transform: translate(2px,3px); box-shadow: 2px 3px 0 rgba(15,21,80,0.55); }
-
-.newsletter-input-row{ display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
-.newsletter-input-row input{
-  flex:1; min-width:200px; padding:14px 16px; border:2.5px solid var(--navy); border-radius:10px;
-  font-family:'Manrope',sans-serif; font-size:14px; background:#fff;
-}
-
-footer{
-  position:relative; z-index:2; text-align:center; padding:50px 20px 70px;
-  font-family:'Press Start 2P', monospace; font-size:10px; letter-spacing:.1em; color:var(--navy);
+footer.credit{
+  position:absolute; left:0; right:0; bottom:10px; z-index:2;
+  text-align:center;
+  font-family:'Press Start 2P', monospace; font-size:8px; letter-spacing:.1em; color:var(--navy);
+  opacity:0.75;
 }
 </style>
 </head>
 <body>
 
 <div id="news-bg"></div>
+<img id="news-bg-photo" src="" alt="" onerror="this.style.display='none';">
 
 <div class="hero">
-  <nav class="hero-nav">
-    <a href="#about" class="pixel">ABOUT ME</a>
-    <a href="#mission" class="pixel">CDS MISSION<br>STATEMENT</a>
-    <a href="#services" class="pixel">SERVICES</a>
-    <a href="#inquiries" class="pixel">INQUIRIES</a>
-    <a href="#newsletter" class="pixel">NEWSLETTER</a>
+  <nav class="hero-nav" id="heroNav">
+    <a href="about.html" class="pixel">ABOUT ME</a>
+    <a href="mission.html" class="pixel">CDS MISSION<br>STATEMENT</a>
+    <a href="services.html" class="pixel">SERVICES</a>
+    <a href="inquiries.html" class="pixel">INQUIRIES</a>
+    <a href="newsletter.html" class="pixel">NEWSLETTER</a>
   </nav>
 
   <div class="mark-wrap">
@@ -277,19 +260,19 @@ footer{
       <svg viewBox="0 0 24 24" fill="none"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="#1a2271"/></svg>
     </div>
     <div class="bubble" style="width:52px;height:52px; left:2%; top:44%; animation-delay:.2s;">
-      <img src="bubble.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <img src="assets/bubble.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
       <div class="bubble-fallback"></div>
     </div>
     <div class="bubble" style="width:30px;height:30px; left:14%; top:30%; animation-delay:1s;">
-      <img src="bubble.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <img src="assets/bubble.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
       <div class="bubble-fallback"></div>
     </div>
     <div class="bubble" style="width:36px;height:36px; right:8%; bottom:14%; animation-delay:.6s;">
-      <img src="bubble.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <img src="assets/bubble.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
       <div class="bubble-fallback"></div>
     </div>
     <div class="bubble" style="width:22px;height:22px; right:18%; bottom:2%; animation-delay:1.4s;">
-      <img src="bubble.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <img src="assets/bubble.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
       <div class="bubble-fallback"></div>
     </div>
 
@@ -298,80 +281,117 @@ footer{
   </div>
 
   <div class="photo-slot">
-    <img src="photo.jpg" alt="Ali" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <img src="assets/photo.jpg" alt="Ali" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="photo-placeholder" style="display:none;">
+      <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="100" cy="96" rx="52" ry="58" fill="#1a2271" opacity="0.85"/>
+        <path d="M40 230 C 40 160 60 130 100 130 C 140 130 160 160 160 230 Z" fill="#1a2271" opacity="0.85"/>
+        <circle cx="80" cy="90" r="5" fill="#eee6d3"/>
+        <circle cx="120" cy="90" r="5" fill="#eee6d3"/>
+        <path d="M78 112 Q100 124 122 112" stroke="#eee6d3" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span>DROP A PHOTO HERE<br>(assets/photo.jpg)</span>
     </div>
-    <svg class="pixel-cursor" style="bottom:22%; left:8%;" viewBox="0 0 32 32" fill="none">
+  </div>
+
+  <div class="pixel-cursor" id="pixelCursor">
+    <svg class="bob" viewBox="0 0 32 32" fill="none">
       <path d="M4 2 L4 26 L10 20 L14 29 L18 27 L14 18 L22 18 Z" fill="#ffffff" stroke="#1a2271" stroke-width="2.5" stroke-linejoin="round"/>
     </svg>
   </div>
+
+  <footer class="credit">© CYBERDOLLS STUDIO — EST. TEXAS</footer>
 </div>
 
-<section id="about" class="panel">
-  <div class="panel-card">
-    <span class="kicker">// ABOUT ME</span>
-    <h2 class="panel-title">Hey diva, I'm Ali.</h2>
-    <p>I've been doing graphic design for a little over 6 years — started as a hobby, now it's the whole studio. I'm currently in school for music, so brand work and melody live in the same brain around here.</p>
-    <p>Originally from Nevada, based in Texas now. When I'm not designing you'll catch me traveling or on the volleyball court. Can't wait to meet you and build something that actually looks like <i>you</i>.</p>
-    <div class="chip-row">
-      <span class="chip">6+ YRS EXP</span>
-      <span class="chip">BASED IN TX</span>
-      <span class="chip">MUSIC SCHOOL</span>
-      <span class="chip">VOLLEYBALL</span>
-    </div>
-  </div>
-</section>
-
-<section id="mission" class="panel">
-  <div class="panel-card">
-    <span class="kicker">// CDS MISSION STATEMENT</span>
-    <h2 class="panel-title">Nostalgia, coded for now.</h2>
-    <p>CyberDolls Studio is an authentically Y2K-inspired creative studio that combines nostalgia, internet culture, and modern branding. We help creators, influencers, musicians, small businesses, and entrepreneurs develop eye-catching visual identities that stand out online.</p>
-  </div>
-</section>
-
-<section id="services" class="panel">
-  <div class="panel-card">
-    <span class="kicker">// SERVICES</span>
-    <h2 class="panel-title">What I build</h2>
-    <div class="service-grid">
-      <div class="service-tile"><h3>Business Cards</h3><p>Cards people actually want to hold onto.</p></div>
-      <div class="service-tile"><h3>Event / Personal Posters</h3><p>Flyers built to stop the scroll.</p></div>
-      <div class="service-tile"><h3>Websites</h3><p>Full builds with a point of view.</p></div>
-      <div class="service-tile"><h3>Social Media Packages</h3><p>Grids &amp; templates that match your brand.</p></div>
-    </div>
-  </div>
-</section>
-
-<section id="inquiries" class="panel">
-  <div class="panel-card">
-    <span class="kicker">// INQUIRIES</span>
-    <h2 class="panel-title">Let's build your identity.</h2>
-    <p>Slide into the inbox with your project idea, budget, and vibe — replies usually land within a day or two.</p>
-    <a href="mailto:hello@cyberdollsstudio.com" class="btn3d">✉ EMAIL THE STUDIO</a>
-  </div>
-</section>
-
-<section id="newsletter" class="panel">
-  <div class="panel-card">
-    <span class="kicker">// NEWSLETTER</span>
-    <h2 class="panel-title">Stay in the loop.</h2>
-    <p>New drops, behind-the-scenes, and the occasional Y2K rabbit hole. No spam, just diva updates.</p>
-    <div class="newsletter-input-row">
-      <input type="email" placeholder="your@email.com">
-      <a href="#" class="btn3d" style="margin-top:0;">SUBSCRIBE</a>
-    </div>
-  </div>
-</section>
-
-<footer>© CYBERDOLLS STUDIO — EST. TEXAS</footer>
-
 <script>
-/* ── scroll reveal for panels ── */
-const cards = document.querySelectorAll('.panel-card');
-const io = new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
-}, {threshold:0.2});
-cards.forEach(c=>io.observe(c));
+/* ── pick the landscape or portrait wallpaper based on viewport orientation ── */
+(function(){
+  const img = document.getElementById('news-bg-photo');
+  if(!img) return;
+  let current = null;
+  function pickWallpaper(){
+    const wantPortrait = window.innerHeight > window.innerWidth;
+    const file = wantPortrait ? 'assets/wpP.png' : 'assets/wpL.png';
+    if(file !== current){
+      current = file;
+      img.style.display = '';
+      img.src = file;
+    }
+  }
+  pickWallpaper();
+  window.addEventListener('resize', pickWallpaper);
+  window.addEventListener('orientationchange', pickWallpaper);
+})();
+
+/* ── cursor that walks down the nav list, holds 5s per item, then
+   disintegrates once it runs past the last option and re-appears at top ── */
+(function(){
+  const hero = document.querySelector('.hero');
+  const cursor = document.getElementById('pixelCursor');
+  const links = Array.from(document.querySelectorAll('#heroNav a'));
+  if(!hero || !cursor || links.length === 0) return;
+
+  let idx = 0;
+  const HOLD_MS = 5000;
+  const DISINTEGRATE_MS = 700;
+
+  function placeAt(el, animate){
+    const heroBox = hero.getBoundingClientRect();
+    const linkBox = el.getBoundingClientRect();
+    // tip of the cursor points up-left at the text
+    const top = (linkBox.top - heroBox.top) + linkBox.height * 0.25;
+    const left = (linkBox.right - heroBox.left) + 6;
+    cursor.style.transition = animate
+      ? 'top .85s cubic-bezier(.34,1.56,.64,1), left .85s cubic-bezier(.34,1.56,.64,1), opacity .5s ease'
+      : 'none';
+    cursor.style.top = top + 'px';
+    cursor.style.left = left + 'px';
+  }
+
+  function highlight(el){
+    links.forEach(l => l.classList.remove('cursor-target'));
+    if(el) el.classList.add('cursor-target');
+  }
+
+  function step(){
+    if(idx < links.length){
+      const el = links[idx];
+      placeAt(el, true);
+      highlight(el);
+      idx++;
+    } else {
+      // walked past the last option — disintegrate, then reset to top
+      highlight(null);
+      cursor.classList.add('disintegrate');
+      setTimeout(()=>{
+        cursor.classList.remove('disintegrate');
+        idx = 0;
+        placeAt(links[0], false);
+        cursor.style.opacity = '0';
+        // force reflow so the opacity:0 actually applies before we fade in
+        void cursor.offsetWidth;
+        cursor.style.transition = 'opacity .6s ease';
+        cursor.style.opacity = '1';
+        highlight(links[0]);
+        idx = 1;
+      }, DISINTEGRATE_MS);
+    }
+  }
+
+  // initial placement once fonts/layout settle
+  window.addEventListener('load', ()=>{
+    placeAt(links[0], false);
+    highlight(links[0]);
+    idx = 1;
+    setInterval(step, HOLD_MS);
+  });
+
+  // keep the cursor glued to the right spot on resize
+  window.addEventListener('resize', ()=>{
+    const current = links[(idx - 1 + links.length) % links.length];
+    if(current) placeAt(current, false);
+  });
+})();
 </script>
 
 </body>
