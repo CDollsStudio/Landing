@@ -222,12 +222,70 @@ body{
   .photo-slot{ width:44vw; right:-2vw; bottom:-2vh; }
   .pixel-cursor{ display:none; }
 }
+
+/* ── mobile rework: the old rules squeezed nav labels down to 9px while
+   keeping a 2px stroke + heavy glow blur meant for 26px display type, which
+   turned the words into illegible blue blobs, and the skew/rotate stacked
+   on top made it worse. On small screens we drop the stroke/skew instead
+   of just shrinking the same desktop styling, and give the nav its own
+   readable column above the wordmark instead of overlapping it. ── */
 @media(max-width:560px){
-  .hero-nav{ max-width:60%; gap:10px; }
-  .hero-nav a{ font-size: clamp(9px,3vw,13px); }
-  .wordmark{ font-size: clamp(28px,10vw,44px); }
-  .subword{ font-size: clamp(11px,3vw,16px); }
-  .photo-slot{ width:52vw; }
+  .hero{
+    flex-direction:column;
+    justify-content:flex-start;
+    align-items:center;
+    padding: 76px 6vw 24px;
+    gap: 18px;
+  }
+  .hero-nav{
+    position:relative;
+    max-width:100%;
+    width:100%;
+    flex-direction:row;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    z-index:5;
+  }
+  .hero-nav a{
+    font-family:'Press Start 2P', monospace;
+    font-size:9.5px;
+    line-height:1.4;
+    letter-spacing:0.01em;
+    color:#fff;
+    background:var(--navy);
+    padding:9px 11px;
+    border-radius:8px;
+    text-align:center;
+    -webkit-text-stroke: 0;
+    text-shadow:none;
+    transform:none;
+    box-shadow: 2px 3px 0 rgba(15,21,80,0.4);
+  }
+  .hero-nav a:nth-child(odd),
+  .hero-nav a:nth-child(even){ transform:none; margin-left:0; }
+  .hero-nav a:hover, .hero-nav a.cursor-target{
+    transform: translateY(-2px);
+    filter:none;
+    box-shadow: 3px 4px 0 rgba(15,21,80,0.5);
+  }
+
+  .mark-wrap{
+    position:relative;
+    left:auto; top:auto; transform:none;
+    width:min(78vw,340px);
+    margin-top:6px;
+  }
+  .wordmark{ font-size: clamp(30px,10vw,44px); }
+  .subword{ font-size: clamp(12px,3.6vw,16px); }
+
+  .photo-slot{
+    position:relative;
+    right:auto; bottom:auto;
+    width:56vw;
+    margin-top:auto;
+    align-self:flex-end;
+  }
 }
 
 footer.credit{
@@ -235,6 +293,9 @@ footer.credit{
   text-align:center;
   font-family:'Press Start 2P', monospace; font-size:8px; letter-spacing:.1em; color:var(--navy);
   opacity:0.75;
+}
+@media(max-width:560px){
+  footer.credit{ position:relative; margin-top:14px; bottom:auto; }
 }
 </style>
 </head>
@@ -324,12 +385,15 @@ footer.credit{
 })();
 
 /* ── cursor that walks down the nav list, holds 5s per item, then
-   disintegrates once it runs past the last option and re-appears at top ── */
+   disintegrates once it runs past the last option and re-appears at top.
+   Skipped entirely on small screens, where the cursor is hidden and the
+   nav is a static row of buttons instead. ── */
 (function(){
   const hero = document.querySelector('.hero');
   const cursor = document.getElementById('pixelCursor');
   const links = Array.from(document.querySelectorAll('#heroNav a'));
   if(!hero || !cursor || links.length === 0) return;
+  if(window.matchMedia('(max-width:860px)').matches) return;
 
   let idx = 0;
   const HOLD_MS = 5000;
