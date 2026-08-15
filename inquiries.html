@@ -191,10 +191,34 @@ footer{
 }
 footer a{ color:var(--navy); }
 
+#rotate-overlay{ display:none; }
+@media (orientation: landscape) and (max-height: 560px) and (pointer: coarse){
+  #rotate-overlay{
+    display:flex; position:fixed; inset:0; z-index:9999;
+    background: var(--navy); color:var(--cream);
+    flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:32px; gap:18px;
+  }
+  #rotate-overlay svg{ width:64px; height:64px; animation: rotateHint 1.8s ease-in-out infinite; }
+  #rotate-overlay p{
+    font-family:'Press Start 2P', monospace; font-size:12px; line-height:1.8;
+    max-width:360px; letter-spacing:.03em;
+  }
+  @keyframes rotateHint{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-90deg); } }
+  body > *:not(#rotate-overlay){ display:none !important; }
+}
 
 </style>
 </head>
 <body>
+
+<div id="rotate-overlay">
+  <svg viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="1.6">
+    <rect x="6" y="2" width="12" height="20" rx="2.2"/>
+    <line x1="10" y1="19" x2="14" y2="19"/>
+  </svg>
+  <p>PLEASE ROTATE<br>YOUR DEVICE<br>TO PORTRAIT MODE</p>
+</div>
 
 <div id="news-bg"></div>
 
