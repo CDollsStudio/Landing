@@ -23,7 +23,6 @@ body{
   overflow:hidden;
 }
 
-/* ── procedural newsprint canvas — this is the fallback layer, always present ── */
 #news-bg{
   position:fixed; inset:0; z-index:-2;
   width:100%; height:100%;
@@ -39,8 +38,6 @@ body{
   position:absolute; inset:0;
   background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(220,217,210,0) 30%, rgba(220,217,210,0) 70%, rgba(255,255,255,0.4));
 }
-/* real newsprint wallpaper photo, layered on top of the fallback — if wpL.png / wpP.png
-   fail to load this just never appears and the dot pattern above shows through instead */
 #news-bg-photo{
   position:fixed; inset:0; z-index:-1;
   width:100%; height:100%;
@@ -48,7 +45,6 @@ body{
   filter: contrast(1.05);
 }
 
-/* ── pixel outline helper ── */
 .pixel{
   font-family:'Press Start 2P', monospace;
   color:#fff;
@@ -59,7 +55,6 @@ body{
   letter-spacing:0.02em;
 }
 
-/* ── hero ── */
 .hero{
   position:relative;
   height:100svh;
@@ -70,7 +65,6 @@ body{
   padding: 90px 4vw 40px;
 }
 
-/* nav list */
 .hero-nav{
   position:relative; z-index:5;
   display:flex; flex-direction:column;
@@ -93,7 +87,6 @@ body{
   filter: brightness(1.15);
 }
 
-/* center wordmark cluster */
 .mark-wrap{
   position:absolute; left:50%; top:50%;
   transform:translate(-50%,-50%);
@@ -119,7 +112,6 @@ body{
 @keyframes sparkleSpin{ to{ transform: rotate(360deg); } }
 @keyframes sparklePulse{ 0%,100%{ opacity:.7; } 50%{ opacity:1; } }
 
-/* bubbles — real bubble.png photo, with a CSS glass-circle fallback if it fails to load */
 .bubble{
   position:absolute; border-radius:50%;
   overflow:hidden;
@@ -162,7 +154,6 @@ body{
   margin-left: 0.5em;
 }
 
-/* photo — bleeds off the bottom-right corner, real photo with a fallback if missing */
 .photo-slot{
   position:absolute; right:-3vw; bottom:-4vh;
   z-index:3;
@@ -214,8 +205,6 @@ body{
   100%{ opacity:0; transform: translateY(26px) scale(.5) rotate(20deg); filter: blur(6px); }
 }
 
-/* everything stays absolutely positioned at every size so the page never scrolls —
-   we just scale it down instead of letting it stack and grow taller than the screen */
 @media(max-width:860px){
   .hero-nav{ max-width:58%; gap:14px; }
   .mark-wrap{ width:min(66vw,420px); }
@@ -223,12 +212,6 @@ body{
   .pixel-cursor{ display:none; }
 }
 
-/* ── mobile rework: the old rules squeezed nav labels down to 9px while
-   keeping a 2px stroke + heavy glow blur meant for 26px display type, which
-   turned the words into illegible blue blobs, and the skew/rotate stacked
-   on top made it worse. On small screens we drop the stroke/skew instead
-   of just shrinking the same desktop styling, and give the nav its own
-   readable column above the wordmark instead of overlapping it. ── */
 @media(max-width:560px){
   html, body{ height:auto; overflow-y:auto; }
   .hero{
@@ -299,16 +282,33 @@ footer.credit{
   font-family:'Press Start 2P', monospace; font-size:8px; letter-spacing:.1em; color:var(--navy);
   opacity:0.75;
 }
-@media(max-width:560px){
-  /* footer stays absolute (inherited from the base rule) — the hero is
-     now taller than the viewport (padding-bottom reserves room for the
-     bleeding photo), so an absolutely-positioned footer still lands at
-     the true bottom of that taller box instead of getting squeezed
-     up against the logo. */
+#rotate-overlay{ display:none; }
+@media (orientation: landscape) and (max-height: 560px) and (pointer: coarse){
+  #rotate-overlay{
+    display:flex; position:fixed; inset:0; z-index:9999;
+    background: var(--navy); color:var(--cream);
+    flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:32px; gap:18px;
+  }
+  #rotate-overlay svg{ width:64px; height:64px; animation: rotateHint 1.8s ease-in-out infinite; }
+  #rotate-overlay p{
+    font-family:'Press Start 2P', monospace; font-size:12px; line-height:1.8;
+    max-width:360px; letter-spacing:.03em;
+  }
+  @keyframes rotateHint{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-90deg); } }
+  body > *:not(#rotate-overlay){ display:none !important; }
 }
 </style>
 </head>
 <body>
+
+<div id="rotate-overlay">
+  <svg viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="1.6">
+    <rect x="6" y="2" width="12" height="20" rx="2.2"/>
+    <line x1="10" y1="19" x2="14" y2="19"/>
+  </svg>
+  <p>PLEASE ROTATE<br>YOUR DEVICE<br>TO PORTRAIT MODE</p>
+</div>
 
 <div id="news-bg"></div>
 <img id="news-bg-photo" src="" alt="" onerror="this.style.display='none';">
@@ -374,7 +374,6 @@ footer.credit{
 </div>
 
 <script>
-/* ── pick the landscape or portrait wallpaper based on viewport orientation ── */
 (function(){
   const img = document.getElementById('news-bg-photo');
   if(!img) return;
@@ -393,10 +392,6 @@ footer.credit{
   window.addEventListener('orientationchange', pickWallpaper);
 })();
 
-/* ── cursor that walks down the nav list, holds 5s per item, then
-   disintegrates once it runs past the last option and re-appears at top.
-   Skipped entirely on small screens, where the cursor is hidden and the
-   nav is a static row of buttons instead. ── */
 (function(){
   const hero = document.querySelector('.hero');
   const cursor = document.getElementById('pixelCursor');
@@ -411,7 +406,6 @@ footer.credit{
   function placeAt(el, animate){
     const heroBox = hero.getBoundingClientRect();
     const linkBox = el.getBoundingClientRect();
-    // tip of the cursor points up-left at the text
     const top = (linkBox.top - heroBox.top) + linkBox.height * 0.25;
     const left = (linkBox.right - heroBox.left) + 6;
     cursor.style.transition = animate
@@ -433,7 +427,6 @@ footer.credit{
       highlight(el);
       idx++;
     } else {
-      // walked past the last option — disintegrate, then reset to top
       highlight(null);
       cursor.classList.add('disintegrate');
       setTimeout(()=>{
@@ -441,7 +434,6 @@ footer.credit{
         idx = 0;
         placeAt(links[0], false);
         cursor.style.opacity = '0';
-        // force reflow so the opacity:0 actually applies before we fade in
         void cursor.offsetWidth;
         cursor.style.transition = 'opacity .6s ease';
         cursor.style.opacity = '1';
@@ -451,7 +443,6 @@ footer.credit{
     }
   }
 
-  // initial placement once fonts/layout settle
   window.addEventListener('load', ()=>{
     placeAt(links[0], false);
     highlight(links[0]);
@@ -459,7 +450,6 @@ footer.credit{
     setInterval(step, HOLD_MS);
   });
 
-  // keep the cursor glued to the right spot on resize
   window.addEventListener('resize', ()=>{
     const current = links[(idx - 1 + links.length) % links.length];
     if(current) placeAt(current, false);
